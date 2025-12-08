@@ -26,7 +26,7 @@ async def check_rate_limit(
     key = f"{prefix}:{identifier}"
     now = datetime.utcnow().timestamp()
     window_start = now - window_seconds
-    
+    # Members are timestamps (as strings), scores are timestamps (as floats).
     # Use Redis pipeline for atomic operations
     pipe = client.pipeline()
     
