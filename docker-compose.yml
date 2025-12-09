@@ -38,6 +38,23 @@ services:
     networks:
       - shorty-network
 
+  # pgAdmin - Database Management UI
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: shorty-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@shorty.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - shorty-network
+
   # FastAPI Backend
   backend:
     build:
@@ -98,6 +115,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  pgadmin_data:
 
 
 networks:
