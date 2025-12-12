@@ -3,6 +3,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api.auth import router as auth_router
+from app.api.urls import router as urls_router
+
+if settings.debug:
+    import debugpy
+    debugpy.listen(("0.0.0.0", 5678))
+    print("🐛 Debugger listening on port 5678")
+    # Uncomment to wait for debugger to attach for debugging the startup process
+    # debugpy.wait_for_client()
 
 # Create FastAPI app
 app = FastAPI(
@@ -23,7 +31,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router)
-
+app.include_router(urls_router)
 
 @app.get("/")
 async def root():
