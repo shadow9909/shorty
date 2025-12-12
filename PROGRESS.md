@@ -22,33 +22,6 @@ Production-grade URL shortening service with analytics, multi-user support, and 
 - [x] Set up Alembic for migrations
 - [x] Create initial migration scripts
 
-### Files Created
-```
-backend/
-├── app/
-│   ├── config.py              # Environment-based configuration
-│   ├── db/__init__.py         # Database engine and session factory
-│   └── models/
-│       ├── __init__.py        # Models package
-│       ├── user.py            # User model (auth & ownership)
-│       ├── url.py             # URL model (short code mappings)
-│       └── analytics.py       # Analytics model (click tracking)
-├── requirements.txt           # Python dependencies
-├── requirements-dev.txt       # Development tools (pre-commit)
-├── alembic.ini               # Alembic configuration
-├── migrations/env.py         # Alembic async environment
-└── .env                      # Environment variables
-
-.gitignore                    # Git ignore patterns
-.pre-commit-config.yaml       # Code quality hooks (black, flake8, isort)
-```
-
-### Key Decisions
-- **Database Models**: UUID primary keys for distributed systems
-- **Async Support**: SQLAlchemy async engine with asyncpg driver
-- **Configuration**: Pydantic Settings for type-safe config
-- **Code Quality**: Pre-commit hooks for automatic formatting
-
 ---
 
 ## Phase 1B: Core Services ✅ COMPLETE
@@ -62,18 +35,6 @@ backend/
 - [x] Implement rate limiting service
 - [x] Add database connection utilities
 
-### Files Created
-```
-backend/app/
-├── services/
-│   ├── __init__.py            # Services package exports
-│   ├── auth.py                # JWT & bcrypt authentication
-│   ├── url_shortner.py        # Base62 URL shortening
-│   └── rate_limiter.py        # Sliding window rate limiting
-└── cache/
-    └── __init__.py            # Redis cache utilities
-```
-
 ---
 
 ## Phase 1C: Schemas, Repositories & Auth Endpoints ✅ COMPLETE
@@ -84,22 +45,6 @@ backend/app/
 - [x] Create Pydantic schemas for request/response validation
 - [x] Create repository layer (DAO pattern) for database operations
 - [x] Implement authentication endpoints (register, login, refresh)
-
-### Files Created
-```
-backend/app/
-├── schemas/
-│   ├── __init__.py           # Schemas package
-│   ├── user.py               # User validation schemas
-│   └── url.py                # URL validation schemas
-├── db/repositories/
-│   ├── __init__.py           # Repositories package
-│   ├── user.py               # User database operations
-│   ├── url.py                # URL database operations
-│   └── analytics.py          # Analytics database operations
-└── api/
-    └── auth.py               # Authentication endpoints
-```
 
 ---
 
@@ -115,17 +60,7 @@ backend/app/
 - [x] Create FastAPI main application
 - [x] Test health check endpoints
 - [x] Fix bcrypt dependency issues
-
-### Files Created
-```
-backend/
-├── Dockerfile                # Multi-stage Docker build
-└── app/
-    └── main.py              # FastAPI application
-
-docker-compose.yml           # PostgreSQL, Redis, pgAdmin, Backend
-migrations/versions/         # Database migration files
-```
+- [x] Setup remote debugging with debugpy
 
 ### Services Running
 - **Backend API**: http://localhost:8000
@@ -133,26 +68,67 @@ migrations/versions/         # Database migration files
 - **pgAdmin**: http://localhost:5050 (admin@shorty.com / admin)
 - **PostgreSQL**: localhost:5432 (postgres / postgres)
 - **Redis**: localhost:6379
-
-### Database Tables Created
-- `users` - User accounts with authentication
-- `urls` - URL mappings with analytics
-- `analytics` - Click tracking data
-- `alembic_version` - Migration tracking
+- **Debugger**: localhost:5678
 
 ---
 
-## Phase 1E: Remaining API Endpoints 📋 PLANNED
+## Phase 1E: URL Management & Redirect Endpoints ✅ COMPLETE
 
-### Tasks
-- [ ] Build URL management endpoints (create, list, get, delete)
-- [ ] Add redirect endpoint with analytics tracking
-- [ ] Create authentication dependency for protected routes
-- [ ] Implement health check endpoints (readiness/liveness)
-- [ ] Add structured logging middleware
-- [ ] Add rate limiting middleware
-- [ ] Write unit tests for repositories
-- [ ] Write integration tests for API endpoints
+**Completed**: 2025-12-13
+
+### Tasks Completed
+- [x] Create URL management endpoints (create, list, get, delete)
+- [x] Implement HTTPBearer authentication dependency injection
+- [x] Add redirect endpoint with analytics tracking
+- [x] Implement Redis caching for URL redirects
+- [x] Handle expired URLs (410 Gone status)
+- [x] Add enhanced health check endpoints (readiness/liveness)
+- [x] Implement structured logging middleware
+- [x] Add rate limiting middleware
+- [x] Organize middleware into proper folder structure
+- [x] Fix timezone-aware datetime issues across codebase
+
+### Implementation Details
+
+#### Redirect Endpoint (`GET /{short_code}`)
+- Validates short code format
+- Checks Redis cache first for performance
+- Fetches from database if not cached
+- Tracks analytics (IP address, user agent, referer)
+- Increments click count
+- Handles expired URLs with 410 Gone status
+- Caches URL in Redis with configurable TTL
+- Returns 307 Temporary Redirect
+
+#### Health Check Endpoints
+- `GET /health` - Basic health check
+- `GET /health/live` - Liveness probe (application running)
+- `GET /health/ready` - Readiness probe (checks DB and Redis connectivity)
+
+#### Middleware
+- **Logging Middleware** (`app/middleware/logging.py`):
+  - Generates unique request ID for tracing
+  - Logs request/response details with execution time
+  - Adds X-Request-ID header to responses
+  - Structured logging for ELK stack integration
+  
+- **Rate Limiting Middleware** (`app/middleware/rate_limit.py`):
+  - Configurable limits per endpoint
+  - Uses Redis sliding window algorithm
+  - Returns 429 with Retry-After header
+  - Skips health checks and documentation endpoints
+
+#### Bug Fixes
+- Fixed timezone-aware datetime comparisons across codebase
+- Updated all `datetime.utcnow()` to `datetime.now(timezone.utc)`
+- Ensured consistency with database models using `DateTime(timezone=True)`
+
+### Current Status
+- All URL management endpoints working with proper authentication
+- Redirect endpoint fully functional with analytics and caching
+- Health checks operational for Kubernetes probes
+- Middleware active for logging and rate limiting
+- Backend ready for frontend integration (Phase 2)
 
 ---
 
@@ -213,18 +189,26 @@ migrations/versions/         # Database migration files
 
 ## Development Notes
 
-### Phase 1D Notes
-- Docker Compose setup complete with all services
+### Phase 1E Notes (Completed)
+- Docker setup complete with all services
 - pgAdmin added for easy database visualization
 - Alembic migrations successfully created database schema
 - Fixed bcrypt dependency by adding explicit version
 - All services running with health checks
+- Remote debugging configured with debugpy on port 5678
+- URL management endpoints created with HTTPBearer authentication
+- Redirect endpoint implemented with analytics tracking and Redis caching
+- Health check endpoints (live/ready) operational for Kubernetes probes
+- Middleware implemented for structured logging and rate limiting
+- Fixed timezone-aware datetime issues across entire codebase
+- Middleware organized into proper folder structure (`app/middleware/`)
 
 ### Next Steps
-- Phase 1E: Complete remaining API endpoints (URL management, redirect)
-- Add middleware for logging and rate limiting
-- Write tests for repositories and API endpoints
-- Then move to Phase 2: Minimal Frontend
+1. **Phase 2: Minimal Frontend** - Build React frontend with Vite
+2. Test complete user flow (register → login → create URLs → redirect)
+3. Add unit and integration tests (deferred from Phase 1E)
+4. Consider adding more analytics features (geolocation, device type)
+5. Prepare for Kubernetes deployment (Phase 3)
 
 ---
 
@@ -249,6 +233,11 @@ docker-compose exec backend alembic upgrade head
 - API: http://localhost:8000/docs
 - pgAdmin: http://localhost:5050
 - Health: http://localhost:8000/health
+
+### Remote Debugging
+- Debugger listening on port 5678
+- Use VS Code "Python: Remote Attach" configuration
+- Set breakpoints and press F5 to attach
 
 ### Stop Services
 ```bash

@@ -84,8 +84,9 @@ class URLRepository:
     
     async def increment_click_count(self, url: URL) -> None:
         """Increment click count and update last accessed time."""
+        from datetime import timezone
         url.click_count += 1
-        url.last_accessed_at = datetime.utcnow()
+        url.last_accessed_at = datetime.now(timezone.utc)
         await self.db.commit()
     
     async def update(self, url: URL) -> URL:

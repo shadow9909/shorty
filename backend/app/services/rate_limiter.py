@@ -1,6 +1,6 @@
 """Rate limiting service using Redis sliding window algorithm."""
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from app.cache import get_redis
 from app.config import settings
 
@@ -24,7 +24,7 @@ async def check_rate_limit(
     """
     client = await get_redis()
     key = f"{prefix}:{identifier}"
-    now = datetime.utcnow().timestamp()
+    now = datetime.now(timezone.utc).timestamp()
     window_start = now - window_seconds
     # Members are timestamps (as strings), scores are timestamps (as floats).
     # Use Redis pipeline for atomic operations
