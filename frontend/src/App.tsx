@@ -3,7 +3,8 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
-
+import type { JSX } from 'react';
+import Dashboard from './pages/Dashboard';
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth();
@@ -23,9 +24,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <div className="p-8 text-center text-2xl">
-                  Dashboard Coming Soon! 🚀
-                </div>
+                <Dashboard />
               </ProtectedRoute>
             }
           />
