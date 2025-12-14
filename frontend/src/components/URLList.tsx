@@ -1,5 +1,5 @@
 import { Copy, Trash2, ExternalLink } from 'lucide-react';
-import { Button } from './ui/Button';
+
 import toast from 'react-hot-toast';
 
 interface URLItem {
