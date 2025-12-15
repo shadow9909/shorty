@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shorty-config
+  namespace: shorty
+data:
+  # Application Configuration
+  APP_NAME: "Shorty Kubernetes"
+  LOG_LEVEL: "DEBUG"
+  
+  # Database Configuration
+  # Note: Hostnames correspond to Service names we will create
+  DATABASE_HOST: "host.docker.internal"
+  DATABASE_PORT: "5432"
+  DATABASE_DB: "shorty"
+  DATABASE_USER: "postgres"
+  # DATABASE_URL will be constructed in the backend pod or here 
+  
+  # Redis Configuration
+  REDIS_HOST: "host.docker.internal"
+  REDIS_PORT: "6379"
+  REDIS_URL: "redis://host.docker.internal:6379/0"
+  
+  # Security
+  JWT_ALGORITHM: "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "15"
+  REFRESH_TOKEN_EXPIRE_DAYS: "7"
+  
+  # CORS (Allow both localhost and potential simplified ingress URL)
+  CORS_ORIGINS: '["http://localhost", "http://localhost:3000", "http://shorty.local"]'
+
+  # Rate Limiting
+  RATE_LIMIT_PER_MINUTE: "100"
+  RATE_LIMIT_PER_HOUR: "1000"
+  URL_CREATION_LIMIT_PER_MINUTE: "10"
+  
+  # URL Shortener
+  SHORT_CODE_LENGTH: "6"
+  BASE_URL: "http://localhost"

@@ -1,0 +1,31 @@
+# YAML defines an Ingress named shorty-ingress in the shorty namespace, using the nginx 
+# ingress class. It has rules so that requests to localhost with paths starting with /api/ go 
+# to a backend Service on port 8000, and all other paths go to a frontend Service on port 80.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shorty-ingress
+  namespace: shorty
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - path: /api/(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 8000
+      - path: /(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80
