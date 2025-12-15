@@ -165,19 +165,30 @@ Production-grade URL shortening service with analytics, multi-user support, and 
 
 ---
 
-## Phase 3: Kubernetes Infrastructure 📋 PLANNED
+## Phase 3: Infrastructure (Hybrid K8s) ✅ COMPLETE
 
-### Tasks
-- [ ] Create namespace and resource quotas
-- [ ] PostgreSQL StatefulSet with PVC
-- [ ] Redis Deployment and Service
-- [ ] Backend Deployment with HPA
-- [ ] Frontend Deployment with HPA
-- [ ] Ingress configuration with TLS
-- [ ] ConfigMaps for application config
-- [ ] Secrets for sensitive data
-- [ ] Network policies
-- [ ] Local testing with minikube/kind
+**Completed**: 2025-12-15
+
+### Tasks Completed
+- [x] Create K8s namespace and base config (`namespace`, `secrets`, `configmap`)
+- [x] Deploy Backend & Frontend to Kubernetes (Stateless)
+- [x] Configure Data Layer on Host Docker (`postgres`, `redis`, `pgadmin`)
+- [x] Connect K8s apps to Host databases via `host.docker.internal`
+- [x] Configure Ingress rules (Ingress Controller required)
+- [x] Implement robust readiness probes (deep check `/health/ready`)
+- [x] Verify full connectivity and port-forward access
+
+### Implementation Details
+
+#### Hybrid Architecture
+- **App Layer (K8s)**: Frontend and Backend run as stateless Pods in Kubernetes.
+- **Data Layer (Docker)**: Postgres and Redis run in stable Docker containers on the Host.
+- **Connectivity**: K8s pods access databases using the special `host.docker.internal` DNS name, allowing seamless communication between the cluster and the host's Docker network.
+
+#### Troubleshooting & Resolutions
+- **Ingress**: Identified missing Ingress Controller on local setup; recommended Port Forwarding (`kubectl port-forward`) as a reliable alternative.
+- **Database Access**: Resolved authentication/connectivity issues by switching from in-cluster DBs to host-mounted DBs for better local stability.
+- **Readiness Probes**: Upgraded backend probe from shallow `/health` to deep `/health/ready` to ensure traffic only hits pods with active DB connections.
 
 ---
 
@@ -224,10 +235,9 @@ Production-grade URL shortening service with analytics, multi-user support, and 
 - Middleware organized into proper folder structure (`app/middleware/`)
 
 ### Next Steps
-2. **Phase 2: Minimal Frontend** - (Completed) React frontend with Vite & Docker
-3. Add unit and integration tests (deferred from Phase 1E)
-4. Consider adding more analytics features (geolocation, device type)
-5. Prepare for Kubernetes deployment (Phase 3)
+3. **Phase 3: Kubernetes** - (Completed) Hybrid setup functioning.
+4. **Phase 4: ELK Stack** - Consider implementing centralized logging.
+5. **Phase 5: Operational Tooling** - Add backup/restore verification.
 
 ---
 
@@ -249,9 +259,9 @@ docker-compose exec backend alembic upgrade head
 ```
 
 ### Access Services
-- **Frontend**: http://localhost:3000
-- **API**: http://localhost:8000/docs
-- **pgAdmin**: http://localhost:5050
+- **Frontend**: http://localhost:3000 (via `kubectl port-forward svc/frontend 3000:80 -n shorty`)
+- **API**: http://localhost:8000/docs (via port-forward or Ingress)
+- **pgAdmin**: http://localhost:5050 (Docker host port)
 - **Health**: http://localhost:8000/health
 
 ### Remote Debugging
