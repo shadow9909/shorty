@@ -1,4 +1,5 @@
 """Authentication API endpoints."""
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import get_db
@@ -13,11 +14,13 @@ from app.services import (
 )
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
     """Register a new user."""
+    logger.info(f"Register attempt for email: {user_data.email}")
     user_repo = UserRepository(db)
     
     # Check if email already exists
@@ -47,6 +50,7 @@ async def register(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
 @router.post("/login", response_model=Token)
 async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)):
     """Login and receive JWT tokens."""
+    logger.info(f"Login attempt for email: {credentials.email}")
     user_repo = UserRepository(db)
     
     # Find user by email

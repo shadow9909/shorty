@@ -101,7 +101,7 @@ async def create_short_url(
     Custom aliases require authentication.
     """
     # Validate: custom alias requires authentication
-    logger.error(f"Creating URL - User ID: {user_id}, Long URL: {url_data.long_url}")
+    logger.info(f"Creating URL - User ID: {user_id}, Long URL: {url_data.long_url}")
 
     if not user_id and url_data.custom_alias:
         raise HTTPException(

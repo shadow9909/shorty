@@ -17,7 +17,8 @@ interface URLListProps {
 
 export function URLList({ urls, onDelete }: URLListProps) {
     const copyToClipboard = (shortCode: string) => {
-        const url = `${window.location.protocol}//${window.location.host}/${shortCode}`;
+        // Use Backend Port 8000 for redirects
+        const url = `${window.location.protocol}//${window.location.hostname}:8000/${shortCode}`;
         navigator.clipboard.writeText(url);
         toast.success('Copied to clipboard!');
     };
@@ -46,7 +47,7 @@ export function URLList({ urls, onDelete }: URLListProps) {
                         <tr key={url.id} className="hover:bg-gray-50 transition-colors">
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center text-primary-600 font-medium">
-                                    <span className="mr-2">/{url.short_code}</span>
+                                    <span className="mr-2">localhost:8000/{url.short_code}</span>
                                     <button onClick={() => copyToClipboard(url.short_code)} className="text-gray-400 hover:text-primary-600 transition-colors">
                                         <Copy size={16} />
                                     </button>

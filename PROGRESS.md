@@ -192,16 +192,19 @@ Production-grade URL shortening service with analytics, multi-user support, and 
 
 ---
 
-## Phase 4: ELK Stack on K8s 📋 PLANNED
+## Phase 4: ELK Stack (Logging) ✅ COMPLETE
 
-### Tasks
-- [ ] Elasticsearch StatefulSet (3 replicas)
-- [ ] Logstash Deployment with pipeline config
-- [ ] Kibana Deployment and Service
-- [ ] Filebeat DaemonSet for log shipping
-- [ ] Configure log parsing and indexing
-- [ ] Create basic Kibana dashboards
-- [ ] Set up log retention policies
+**Completed**: 2025-12-16
+
+### Tasks Completed
+- [x] Deploy Elasticsearch, Logstash, Kibana via Docker Compose
+- [x] Integrate `python-logstash-async` into Backend
+- [x] Configure Backend to ship logs to `host.docker.internal:5001`
+- [x] Troubleshooting: Resolved port 5000 conflict by moving Logstash to 5001
+
+### Access
+- **Kibana**: http://localhost:5601
+- **Elasticsearch**: http://localhost:9200
 
 ---
 
@@ -235,8 +238,7 @@ Production-grade URL shortening service with analytics, multi-user support, and 
 - Middleware organized into proper folder structure (`app/middleware/`)
 
 ### Next Steps
-3. **Phase 3: Kubernetes** - (Completed) Hybrid setup functioning.
-4. **Phase 4: ELK Stack** - Consider implementing centralized logging.
+4. **Phase 4: ELK Stack** - (Completed) Centralized logging running.
 5. **Phase 5: Operational Tooling** - Add backup/restore verification.
 
 ---

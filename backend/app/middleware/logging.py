@@ -2,11 +2,30 @@
 import time
 import uuid
 import logging
-from typing import Callable
-from fastapi import Request, Response
+import json
+from typing import Callable # Keep Callable for dispatch method
+from logstash_async.handler import AsynchronousLogstashHandler
+from fastapi import Request, Response # Keep Response for dispatch method
 from starlette.middleware.base import BaseHTTPMiddleware
+from app.config import settings
 
-logger = logging.getLogger(__name__)
+# Setup logger
+logger = logging.getLogger("shorty")
+logger.setLevel(logging.INFO)
+
+# Console Handler
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger.addHandler(console_handler)
+
+# Logstash Handler (TCP)
+# Use host.docker.internal to reach Logstash running on Docker Compose from K8s
+logstash_handler = AsynchronousLogstashHandler(
+    host='host.docker.internal',
+    port=5001,
+    database_path=None
+)
+logger.addHandler(logstash_handler)
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):

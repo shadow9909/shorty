@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 from app.config import settings
 from app.api.auth import router as auth_router
 from app.api.urls import router as urls_router
@@ -92,8 +93,8 @@ async def readiness_check():
     try:
         db = get_db()
         async for session in db:
-            # Simple query to check connection
-            await session.execute("SELECT 1")
+            # Simple query to check connection, wrapped in text() for SQLAlchemy 2.0 compatibility
+            await session.execute(text("SELECT 1"))
             health_status["checks"]["database"] = "healthy"
             break
     except Exception as e:
